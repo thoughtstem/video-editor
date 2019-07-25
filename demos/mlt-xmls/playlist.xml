@@ -1,0 +1,15 @@
+<mlt>
+  <producer id="producer0">
+    <property name="resource">../producers/example.mp4</property>
+  </producer>
+
+  <producer id="producer1">
+    <property name="resource">../producers/example2.mp4</property>
+  </producer>
+
+  <playlist id="playlist0">
+    <entry producer="producer0" in="0" out="10"/>
+    <entry producer="producer1" in="0" out="10"/>
+    <entry producer="producer0" in="10" out="20"/>
+  </playlist>
+</mlt>

@@ -1,11 +1,7 @@
 #lang video-editor
 
-(require racket/runtime-path)
+(require "./common.rkt")
 
-(define-runtime-path here ".")
-
-(define path1 (build-path here "./videos/example.mp4"))
-
+(define path1 (build-path here "./producers/example.mp4"))
 (define video1 (clip path1))
-
 (melt video1)

@@ -1,0 +1,10 @@
+<mlt>
+  <multitrack>
+    <playlist>
+      <producer>
+        <property name="resource">../videos/example.mp4</property>
+      </producer>
+    </playlist>
+  </multitrack>
+  <filter mlt_service="greyscale" track="0"/>
+</mlt>
