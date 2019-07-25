@@ -1,6 +1,6 @@
 #lang racket
 
-(provide video1 here)
+(provide here)
 
 (require racket/runtime-path)
 

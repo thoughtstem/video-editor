@@ -8,4 +8,10 @@
 (define video1 (clip path1))
 (define video2 (clip path2))
 
-(melt (playlist video1 video2)) ;TODO: Implement playlist
+(define playlist1
+  (playlist 
+    (clip video1 #:in 0 #:out 10)  
+    (clip video2 #:in 0 #:out 10)  
+    (clip video1 #:in 10 #:out 20)))
+
+playlist1
