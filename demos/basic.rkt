@@ -4,4 +4,5 @@
 
 (define path1 (build-path here "./producers/example.mp4"))
 (define video1 (clip path1))
-(melt video1)
+
+video1

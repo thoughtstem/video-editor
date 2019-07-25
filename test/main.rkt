@@ -47,8 +47,12 @@
 
                (producer ((id "producer0")  
                           (in "10")  (out "20"))  
-                         (property ((name "resource")) ,(~a path1)))))
-  )
+                         (property ((name "resource")) ,(~a path1))))))
 
 
-(melt (playlist playlist1 playlist1))
+;TODO: Working.  Turn into test.
+#;
+(melt (add-filter grayscale
+                      (playlist playlist1 playlist1)))
+
+

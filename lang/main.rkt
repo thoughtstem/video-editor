@@ -1,13 +1,19 @@
 #lang racket 
 
 (provide clip melt-xml melt 
-         [rename-out (make-playlist playlist)])
+
+         add-filter
+
+         [rename-out 
+           (make-multitrack multitrack)  
+           (make-playlist playlist)])
 
 (require xml)
 
 (struct producer-base (id in out properties))
 (struct producer producer-base () #:transparent)
 (struct playlist producer-base (producers) #:transparent) 
+(struct multitrack producer-base (producers filters) #:transparent) 
 (struct property (name value) #:transparent)
 
 (define CURRENT-ID -1)
@@ -17,13 +23,29 @@
 
   (~a prefix CURRENT-ID))
 
-;TODO: Can playlists have an in/out?
 (define (make-playlist #:in (in #f) #:out (out #f) . ps)
   (playlist
     (next-id "playlist")
     in out
     '()
     ps))
+
+(define (make-multitrack #:in (in #f) #:out (out #f) . ps)
+  (multitrack
+    (next-id "multitrack")
+    in out
+    '()
+    ps
+    '() ;Filters
+    ))
+
+(define (add-filter f p)
+  (if (multitrack? p)
+    (let ([fs (multitrack-filters p)])
+      (struct-copy multitrack p
+                   [filters (cons f fs)])) 
+    (add-filter f
+      (make-multitrack p))))
 
 (define (clip p #:in (in #f) #:out (out #f))
   (cond 
@@ -46,9 +68,18 @@
   `(playlist ([id ,(~a (producer-base-id p))])
       ,@(map producer->xml (playlist-producers p))))
 
+(define (multitrack->xml p)
+  `(tractor
+     (multitrack ([id ,(~a (producer-base-id p))])
+                      ,@(map producer->xml (multitrack-producers p)))
+     (filter
+       ,@(map property->xml 
+              (multitrack-filters p)))))
+
 (define (producer->xml p)
   (cond 
     [(playlist? p) (playlist->xml p)]
+    [(multitrack? p) (multitrack->xml p)]
     [(producer-base? p) 
      `(producer ([id ,(~a (producer-base-id p))]
                  ,@(if (producer-base-in p)
@@ -80,4 +111,14 @@
 
 (define (mlt-service-property value)
   (property "mlt_service" value))
+
+
+
+(provide grayscale)
+
+(define grayscale 
+  (mlt-service-property "grayscale"))
+
+
+
 
