@@ -50,9 +50,76 @@
                          (property ((name "resource")) ,(~a path1))))))
 
 
-;TODO: Working.  Turn into test.
-#;
-(melt (add-filter grayscale
-                      (playlist playlist1 playlist1)))
+
+(define multitrack1 
+  (add-filter (grayscale)
+	      (playlist playlist1 playlist1)))
+
+
+(check-equal?
+  (melt-xml multitrack1)
+
+  '(mlt
+     (tractor
+       (multitrack
+	 ((id "multitrack5"))
+	 (playlist
+	   ((id "playlist4"))
+	   (playlist
+	     ((id "playlist2"))
+	     (producer
+	       ((id "producer0") (in "0") (out "10"))
+	       (property
+		 ((name "resource"))
+		 "/home/thoughtstem/Desktop/Dev/video-editor/test/./../demos/producers/example.mp4"))
+	     (producer
+	       ((id "producer1") (in "0") (out "10"))
+	       (property
+		 ((name "resource"))
+		 "/home/thoughtstem/Desktop/Dev/video-editor/test/./../demos/producers/example2.mp4"))
+	     (producer
+	       ((id "producer0") (in "10") (out "20"))
+	       (property
+		 ((name "resource"))
+		 "/home/thoughtstem/Desktop/Dev/video-editor/test/./../demos/producers/example.mp4")))
+	   (playlist
+	     ((id "playlist2"))
+	     (producer
+	       ((id "producer0") (in "0") (out "10"))
+	       (property
+		 ((name "resource"))
+		 "/home/thoughtstem/Desktop/Dev/video-editor/test/./../demos/producers/example.mp4"))
+	     (producer
+	       ((id "producer1") (in "0") (out "10"))
+	       (property
+		 ((name "resource"))
+		 "/home/thoughtstem/Desktop/Dev/video-editor/test/./../demos/producers/example2.mp4"))
+	     (producer
+	       ((id "producer0") (in "10") (out "20"))
+	       (property
+		 ((name "resource"))
+		 "/home/thoughtstem/Desktop/Dev/video-editor/test/./../demos/producers/example.mp4")))))
+       (filter ((id "filter3")) (property ((name "mlt_service")) "grayscale")))))
+
+
+(define playlist2
+  (add-filter (grayscale)
+	      (playlist 
+		(clip video1 #:in 0 #:out 50)  
+		(clip video2 #:in 0 #:out 50))))
+
+(define playlist3
+  (playlist 
+    (clip video1 #:in 0 #:out 50)  
+    (clip video2 #:in 0 #:out 50)))
+
+(define multitrack2
+  (multitrack playlist3 playlist2))
+
+
+#; ;Does SOMETHING with a fade, but not sure exactly what...
+(melt (add-transition 
+         (luma-test #:in 45 #:out 55) 
+         multitrack2))
 
 
