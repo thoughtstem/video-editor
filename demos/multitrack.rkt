@@ -12,6 +12,8 @@
 (define p2 (playlist v2 v2 v2 v2))
 
 ;Overlaying them allows p2 to peek through the blank part of p1
-(define m1 (multitrack p2 p1))
+(define m1 (multitrack 
+             p2 
+             (add-filter (grayscale) p1)))
 
 m1
