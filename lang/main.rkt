@@ -1,6 +1,6 @@
 #lang racket 
 
-(provide clip melt-xml melt 
+(provide clip melt-xml melt blank
 
          add-filter
          add-transition
@@ -19,6 +19,8 @@
 
 (struct filter producer-base () #:transparent)
 (struct transition producer-base () #:transparent)
+
+(struct blank (length) #:transparent)
 
 (define CURRENT-ID -1)
 
@@ -121,6 +123,7 @@
   (cond 
     [(playlist? p) (playlist->xml p)]
     [(multitrack? p) (multitrack->xml p)]
+    [(blank? p) `(blank ([length ,(~a (blank-length p))]))]
     [(producer-base? p) 
      `(producer ([id ,(~a (producer-base-id p))]
                  ,@(if (producer-base-in p)
@@ -178,5 +181,6 @@
       (property "a_track" 0)
       (property "b_track" 1)
       (mlt-service-property "luma"))))
+
 
 
