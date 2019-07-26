@@ -63,6 +63,15 @@
     (add-transition f
       (make-multitrack p))))
 
+(define (producer->path p)
+  (define props (producer-base-properties p)) 
+
+  (property-value
+    (findf 
+      (lambda (p)
+        (string=? "resource" (property-name p)))
+      props)))
+
 (define (clip p #:in (in #f) #:out (out #f))
   (cond 
     [(path? p)
@@ -161,7 +170,7 @@
 
 
 
-(provide grayscale)
+(provide grayscale watermark)
 
 (define (grayscale #:in (in #f) #:out (out #f))
   (filter
@@ -169,6 +178,21 @@
     in out
     (list
       (mlt-service-property "grayscale"))))
+
+(define (watermark p x y w h #:in (in #f) #:out (out #f))
+  (filter
+    (next-id "filter")
+    in out
+    (list
+      (property "resource" (~a (producer->path p)))
+      (mlt-service-property "watermark")
+      (property "composite.start" 
+                (~a x "%" "/" y "%" ":" w "%" "/" h "%")))))
+
+
+
+
+
 
 (provide luma-test)
 

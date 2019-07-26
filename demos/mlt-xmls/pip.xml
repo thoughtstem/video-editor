@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mlt> 
+  <producer id="producer0" in="0" out="235">
+    <property name="resource">../producers/clip3.dv</property>
+  </producer>
+  <playlist id="playlist0">
+    <entry producer="producer0" in="0" out="235"/>
+  </playlist>
+  <tractor id="tractor0" title="clip3.dv">
+    <track producer="playlist0"/>
+    <filter id="filter0">
+      <property name="resource">../producers/clip1.dv</property>
+      <property name="mlt_service">watermark</property>
+      <property name="composite.start">10%/10%:20%x20%</property>
+    </filter>
+  </tractor>
+</mlt>
