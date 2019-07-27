@@ -1,9 +1,7 @@
 #lang video-editor
 
-(require "./common.rkt")
-
-(define v1 (clip (build-path here "producers" "clip1.dv")))
-(define v2 (clip (build-path here "producers" "clip2.dv")))
+(define v1 (clip "producers/clip1.dv"))
+(define v2 (clip "producers/clip2.dv"))
 
 (define with-mark
   (add-filter 

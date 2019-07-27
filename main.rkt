@@ -8,15 +8,25 @@
                      #%module-begin)
          (rename-out [my-module-begin #%module-begin]))
 
-(require "./lang/main.rkt")
+(require "./lang/main.rkt"
+         syntax/parse/define
+         (for-syntax racket/list))
 
-(define-syntax-rule (my-module-begin expr ... last-expr)
-  (#%module-begin
-   expr ... 
-  
-   (provide main)
 
-   (define main last-expr)
+(define-syntax (my-module-begin stx)
+  (syntax-parse stx 
+    [(_ expr ... last-expr)
+     (define src 
+       (explode-path (syntax-source stx)))
+     (define src-folder
+       (take src (sub1 (length src))))
+     #`(#%module-begin
 
-   (module+ main
-     (melt main))))
+        (script-location #,(apply build-path src-folder))
+
+        expr ... 
+        (provide main)
+        (define main last-expr)
+
+        (module+ main
+          (melt main)))]))

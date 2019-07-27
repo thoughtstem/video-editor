@@ -1,9 +1,7 @@
 #lang video-editor
 
-(require "./common.rkt")
-
-(define v1 (clip (build-path here "producers" "clip1.dv")))
-(define v2 (clip (build-path here "producers" "clip2.dv")))
+(define v1 (clip "producers/clip1.dv"))
+(define v2 (clip "producers/clip2.dv"))
 
 ;Playlist 1 has a hole in the middle
 (define p1 (playlist v1 (blank 100) v1))

@@ -1,12 +1,7 @@
 #lang video-editor
 
-(require "./common.rkt")
-
-(define path1 (build-path here "./producers/example.mp4"))
-(define path2 (build-path here "./producers/example2.mp4")) ;TODO: Get this
-
-(define video1 (clip path1))
-(define video2 (clip path2))
+(define video1 (clip "./producers/example.mp4"))
+(define video2 (clip "./producers/example2.mp4"))
 
 (define playlist1
   (playlist 
