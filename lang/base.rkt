@@ -69,8 +69,13 @@
 
 (define script-location (make-parameter "."))
 
+
 (define (clip file #:in (in #f) #:out (out #f))
-  (define p (build-path (script-location) file))
+  (define p 
+    (if (absolute-path? file) 
+      file
+      (build-path (script-location) file)))
+
   (cond 
     [(path? p)
      (producer 
