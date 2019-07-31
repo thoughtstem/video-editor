@@ -1,6 +1,6 @@
 #lang racket 
 
-(provide melt melt-xml)
+(provide melt melt-xml melt-debug)
 
 (require xml 
          "./base.rkt" 
@@ -14,7 +14,10 @@
 
 (define (playlist->xml p)
   `(playlist ([id ,(~a (producer-base-id p))])
-     ,@(map producer->xml (playlist-producers p))))
+     ,@(map producer->xml 
+            (filter-not 
+              producer-empty?
+              (playlist-producers p)))))
 
 (define (maybe-attr val fun str)
   (if (fun str)
@@ -23,8 +26,8 @@
 
 (define (filter->xml f)
   `(filter ([id ,(~a (producer-base-id f))]
-                 ,@(maybe-attr 'in producer-base-in f)
-                 ,@(maybe-attr 'out producer-base-out f))
+            ,@(maybe-attr 'in producer-base-in f)
+            ,@(maybe-attr 'out producer-base-out f))
 
      ,@(map property->xml (producer-base-properties f))))
 
@@ -37,7 +40,10 @@
 (define (multitrack->xml p)
   `(tractor
      (multitrack ([id ,(~a (producer-base-id p))])
-                      ,@(map producer->xml (multitrack-producers p)))
+       ,@(map producer->xml 
+              (filter-not 
+                producer-empty?
+                (multitrack-producers p))))
      
        ,@(map transition->xml
 	      (multitrack-transitions p) )
@@ -76,3 +82,5 @@
     (system (~a "melt " path " -consumer avformat:" file " acodec=libmp3lame vcodec=libx264"))
     (system (~a "melt " path))))
 
+(define (melt-debug p)
+  (pretty-print (melt-xml p)))
