@@ -35,18 +35,19 @@
 
 (struct blank (length) #:transparent)
 
-(define (make-playlist #:in (in #f) #:out (out #f) . ps)
+(define (make-playlist . ps)
   (playlist
     (next-id "playlist")
-    (or in 0) 
-    (or out (apply + (map producer-length ps)))
+    0
+    (apply + (map producer-length ps)) 
     '()
     ps))
 
-(define (make-multitrack #:in (in #f) #:out (out #f) . ps)
+(define (make-multitrack . ps)
   (multitrack
     (next-id "multitrack")
-    in out
+    0
+    (apply max (map producer-length ps))
     '()
     ps
     '() ;Transitions
@@ -99,7 +100,7 @@
   (define out (producer-base-out p))
 
   (if (and in out)
-    (- out in)
+    (- out in) 
     +inf.0))
 
 (require "./clip-math.rkt")
@@ -122,7 +123,21 @@
 
 (define (multitrack-producers-clip m in out)
   (define ps          (multitrack-producers m))
-  ps)
+  ;All adjust the in,
+  ;  Some adjust the out, but only if it is greater than out
+
+  (define (fix-in-out p)
+    (define curr-in (producer-base-in p)) 
+    (define curr-out (producer-base-out p)) 
+
+    (cond 
+      [(in . >= . curr-out) (change-in-out p 0 0)]
+      [else (change-in-out p 
+                           (max curr-in in)
+                           (min curr-out out))]  )
+    )
+
+  (map fix-in-out ps))
 
 (define (change-children-in-out pb in out)
   (cond
@@ -144,24 +159,62 @@
   (change-children-in-out rebased in out))
 
 
-;takes a file or string or another producer
-(define (clip path-or-producer #:in (in #f) #:out (out #f))
-  (cond 
-    [(or (string? path-or-producer) 
-         (path? path-or-producer))
-     (let ([p 
-            (if (absolute-path? path-or-producer) 
-              path-or-producer
-              (build-path (script-location) path-or-producer))])
-       (producer 
-         (next-id "producer")
-         (or in 0)  ;TODO: REal length
-         (or out 100)
-         (list 
-           (property "resource" p))))]
-    [(producer-base? path-or-producer)
-     (change-in-out path-or-producer in out) ]
-    [else (error "Cant pass that to clip")]))
+;This function is gross.  Move to another file and break apart.
+(define (clip path-or-producer #:in (in #f) #:out (out #f) #:force (force #f))
+
+  (when (and 
+          (not force)
+          (producer-base? path-or-producer)
+          ((- out in) 
+           . > .
+           (producer-length path-or-producer))) 
+    (error "Can't expand a clip by clipping it."))
+
+  (when (producer-base? path-or-producer)
+    (set! in (max in (producer-base-in path-or-producer))) 
+    (set! out (min out (producer-base-out path-or-producer)))) 
+
+  (define ret
+    (cond 
+      [(or (string? path-or-producer) 
+           (path? path-or-producer))
+       (let ([p 
+               (if (absolute-path? path-or-producer) 
+                 path-or-producer
+                 (build-path (script-location) path-or-producer))])
+         (producer 
+           (next-id "producer")
+           (or in 0)  
+           (or out (path->number-of-frames p)) ;TODO: REal length 
+           (list 
+             (property "resource" p))))]
+      [(producer-base? path-or-producer)
+       (change-in-out path-or-producer in out) ]
+      [else 
+        (error "Can't pass that to clip")]))
+
+  (when (and in out 
+             (not 
+               (= (- out in)   
+                  (producer-length ret))))
+    (error "Clip length came up short!"))
+  
+  ret)
+
+(define (path->number-of-frames path)
+  (define s
+    (with-output-to-string
+      (thunk*
+        (system
+          (~a
+            "ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nokey=1:noprint_wrappers=1 " 
+            path)))))
+
+  (define n 
+    (string->number 
+      (string-replace s "\n" "")))
+  
+  n)
 
 (define (producer->path p)
   (define props (producer-base-properties p)) 

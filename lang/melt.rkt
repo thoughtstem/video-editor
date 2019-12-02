@@ -74,7 +74,8 @@
 
   (with-output-to-file path #:exists 'replace
                        (thunk
-                         (displayln (xexpr->string (melt-xml p)))))
+                         (displayln 
+                           (xexpr->string (melt-xml p)))))
 
   (displayln (~a "Playing " path))
 
@@ -82,5 +83,8 @@
     (system (~a "melt " path " -consumer avformat:" file " acodec=libmp3lame vcodec=libx264"))
     (system (~a "melt " path))))
 
-(define (melt-debug p)
-  (pretty-print (melt-xml p)))
+(define (melt-debug p #:xml (xml #f))
+  (if xml
+    (displayln (xexpr->string (melt-xml p)))
+    (pretty-print 
+      (melt-xml p))))

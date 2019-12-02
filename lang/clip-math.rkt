@@ -15,10 +15,10 @@
        (curr-in  (first curr))
        (curr-out (second curr))
 
-       (curr-length (- curr-out curr-in)))
+       (curr-length (- curr-out curr-in) ))
 
 
-      (if (in . > . curr-length)
+      (if (in . >= . curr-length)
         (cons '[0 0]
               (clip-before (rest in-outs)
                            (- in curr-length)))
@@ -34,9 +34,9 @@
       ((curr (first in-outs))
        (curr-in  (first curr))
        (curr-out (second curr))
-       (curr-length (- curr-out curr-in)))
+       (curr-length (- curr-out curr-in) ))
 
-      (if (out . > . curr-length)
+      (if (out . >= . curr-length)
         (cons curr
               (clip-after (rest in-outs)
                           (- out curr-length)))
