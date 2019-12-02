@@ -68,6 +68,11 @@
   `(mlt
      ,(producer->xml p)))
 
+(define melt-cmd
+  (if (eq? (system-type 'os) 'windows)
+      "qmelt "
+      "melt "))
+
 (define (melt #:out (file #f) p)
   (define path 
     (make-temporary-file "videotemp~a.xml"))
@@ -80,8 +85,8 @@
   (displayln (~a "Playing " path))
 
   (if file
-    (system (~a "melt " path " -consumer avformat:" file " acodec=libmp3lame vcodec=libx264"))
-    (system (~a "melt " path))))
+    (system (~a melt-cmd path " -consumer avformat:" file " acodec=libmp3lame vcodec=libx264"))
+    (system (~a melt-cmd path))))
 
 (define (melt-debug p #:xml (xml #f))
   (if xml
